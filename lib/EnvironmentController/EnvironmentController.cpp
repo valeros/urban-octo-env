@@ -9,6 +9,8 @@
 #include "LightSensor.hpp"
 #endif
 
+uint32_t timer_counter = 0;
+
 EnvironmentController::EnvironmentController(
     TemperatureSensor& ts,
     HumiditySensor& hs,
@@ -49,7 +51,6 @@ void EnvironmentController::setUpperThresholdLight(float lux_value) {
 void EnvironmentController::run() {
     if (this->mTimer.timerFired()){
         this->mTimer.reset();
-
         auto temperature = mTemperatureSensor.getTemperature();
         auto humidity = mHumiditySensor.getHumidity();
         #ifdef DEV_AMBIENT_LIGHT_SENSOR_AVAILABLE
@@ -72,6 +73,8 @@ void EnvironmentController::run() {
                 #endif
             };
             this->notify_observers(data);
+        } else {
+            printf("Temperature: %d is below threshold. Timestamp: %d\r\n", temperature, timer_counter++);
         }
     }
 }

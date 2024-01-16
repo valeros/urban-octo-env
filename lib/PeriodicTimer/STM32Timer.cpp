@@ -16,19 +16,19 @@ void STM32Timer::start()
 
 void STM32Timer::reset()
 {
-    ticks = 0;
 }
 
 void STM32Timer::stop()
 {
-    ticks = 0;
     TimerEnabled = false;
 }
 
 bool STM32Timer::timerFired()
 {
-    if (TimerEnabled && (HAL_GetTick() - ticks > this->mTimeOut))
+    uint32_t current_tick = HAL_GetTick();
+    if ((current_tick - ticks) > this->mTimeOut)
     {
+        ticks = HAL_GetTick();
         return true;
     }
     return false;
