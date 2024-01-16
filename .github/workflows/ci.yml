@@ -1,0 +1,41 @@
+name: Basic Sanity Check
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v2
+        with:
+          path: ~/.platformio
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Install PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade platformio
+
+      - name: Install STM32
+        run: |
+          pio platform install ststm32
+
+      - name: Compile Project
+        run: pio run
+
+      - name: Run Tests
+        if: always()
+        run: pio test -e native_test
+        
+      - name: Run Static Analysis
+        run: pio check --fail-on-defect=high
+
